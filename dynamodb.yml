@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb
+    ports:
+      - "9000:8000"  
+    volumes:
+      - dynamodb-data:/home/dynamodblocal
+    networks:
+      - peter-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  dynamodb-data:
+
+networks:
+  peter-network:
+    driver: bridge
+
+
+
+
+============
+
+
+
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - peter-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DYNAMODB_ENDPOINT_URL=http://dynamodb:8000
+      - AWS_ACCESS_KEY_ID=fakeMyKeyId
+      - AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey
+      - AWS_REGION=us-east-1
+    depends_on:
+      - dynamodb
+    networks:
+      - peter-network
+
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb
+    ports:
+      - "9000:8000"
+    volumes:
+      - dynamodb-data:/home/dynamodblocal
+    networks:
+      - peter-network
+
+volumes:
+  dynamodb-data:
+
+networks:
+  peter-network:
+    driver: bridge
