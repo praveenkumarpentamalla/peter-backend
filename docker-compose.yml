@@ -1,22 +1,19 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  backend:
+  pss-crm:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: backend
-    ports:
-      - "8000:8000"
+      context: .  
+    container_name: pss-crm-backend-container
+    command: gunicorn a_pss.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./backend:/app
-    environment:
-      - AWS_ACCESS_KEY_ID=fakeMyKeyId
-      - AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey
-      - AWS_REGION=us-east-1
+      - .:/app  
+    ports:
+      - "8053:8000"  
     networks:
-      - peter-network
+      - mynetwork 
+    restart: unless-stopped 
 
 networks:
-  peter-network:
-    driver: bridge
+  mynetwork:
+    driver: bridge  
