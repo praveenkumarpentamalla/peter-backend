@@ -1,11 +1,11 @@
 version: "3.8"
 
 services:
-  pss-crm:
+  peter:
     build:
       context: .  
-    container_name: pss-crm-backend-container
-    command: gunicorn a_pss.wsgi:application --bind 0.0.0.0:8000
+    container_name: peter-backend-container
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app  
     ports:
